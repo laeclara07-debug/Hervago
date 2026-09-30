@@ -1,0 +1,2627 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Hervago | Control de Clientes</title>
+  <style>
+    :root {
+      --bg: #f3f7f1;
+      --panel: #ffffff;
+      --text: #1c271a;
+      --muted: #65705f;
+      --line: #dce7d7;
+      --primary: #347a3c;
+      --primary-dark: #265c2d;
+      --soft: #eef7eb;
+      --warning: #a05a00;
+      --danger: #c9362c;
+      --shadow: 0 14px 38px rgba(28, 39, 26, 0.09);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background: var(--bg);
+      color: var(--text);
+      font-family: Arial, Helvetica, sans-serif;
+    }
+
+    header {
+      background: linear-gradient(135deg, #ffffff 0%, #edf7e8 100%);
+      border-bottom: 1px solid var(--line);
+      padding: 24px;
+    }
+
+    .header-content,
+    main {
+      width: min(1220px, calc(100% - 32px));
+      margin: 0 auto;
+    }
+
+    .brand {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      color: var(--primary);
+      font-size: 13px;
+      font-weight: 800;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+    }
+
+    .brand::after {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--primary);
+      content: "";
+      box-shadow: 0 0 0 0 rgba(52, 122, 60, 0.35);
+      animation: pulseDot 2.4s infinite;
+    }
+
+    h1 {
+      margin: 4px 0 0;
+      font-size: 30px;
+      line-height: 1.2;
+    }
+
+    .subtitle {
+      margin: 8px 0 0;
+      color: var(--muted);
+      font-size: 15px;
+    }
+
+    main {
+      display: grid;
+      grid-template-columns: 380px 1fr;
+      gap: 22px;
+      padding: 26px 0;
+    }
+
+    .panel {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      box-shadow: var(--shadow);
+    }
+
+    .form-panel {
+      align-self: start;
+      padding: 22px;
+    }
+
+    h2 {
+      margin: 0 0 16px;
+      font-size: 20px;
+    }
+
+    label {
+      display: block;
+      margin-bottom: 7px;
+      color: #334231;
+      font-size: 14px;
+      font-weight: 700;
+    }
+
+    input,
+    textarea,
+    select {
+      width: 100%;
+      border: 1px solid var(--line);
+      border-radius: 7px;
+      padding: 11px 12px;
+      background: #ffffff;
+      color: var(--text);
+      font: inherit;
+      outline: none;
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+
+    textarea {
+      min-height: 82px;
+      resize: vertical;
+    }
+
+    input:focus,
+    textarea:focus,
+    select:focus {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(52, 122, 60, 0.14);
+    }
+
+    .field {
+      margin-bottom: 15px;
+    }
+
+    .field-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+
+    .check-list {
+      display: grid;
+      gap: 8px;
+      padding: 10px;
+      border: 1px solid var(--line);
+      border-radius: 7px;
+      background: #fbfdf9;
+    }
+
+    .check-list label {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin: 0;
+      font-weight: 400;
+    }
+
+    .check-list input[type="checkbox"] {
+      width: auto;
+    }
+
+    .check-list input[type="number"] {
+      width: 96px;
+      margin: -4px 0 6px 26px;
+      padding: 8px 10px;
+    }
+
+    .actions {
+      display: flex;
+      gap: 10px;
+      margin-top: 18px;
+    }
+
+    button {
+      border: 0;
+      border-radius: 7px;
+      padding: 10px 13px;
+      cursor: pointer;
+      font: inherit;
+      font-weight: 700;
+      transition: background 0.2s, transform 0.2s;
+    }
+
+    button:active {
+      transform: translateY(1px);
+    }
+
+    .btn-primary {
+      flex: 1;
+      background: var(--primary);
+      color: #ffffff;
+    }
+
+    .btn-primary:hover {
+      background: var(--primary-dark);
+    }
+
+    .btn-secondary {
+      background: #eaf1e7;
+      color: #31412e;
+    }
+
+    .btn-danger {
+      background: #fff1ef;
+      color: var(--danger);
+      padding: 8px 10px;
+      font-size: 13px;
+    }
+
+    .btn-edit {
+      background: #fff6e8;
+      color: var(--warning);
+      padding: 8px 10px;
+      font-size: 13px;
+    }
+
+    .tabs {
+      display: flex;
+      gap: 8px;
+      padding: 12px 12px 0;
+    }
+
+    .tab-button {
+      background: transparent;
+      color: var(--muted);
+      border: 1px solid transparent;
+      padding: 9px 12px;
+    }
+
+    .tab-button.active {
+      background: var(--soft);
+      border-color: var(--line);
+      color: var(--primary-dark);
+    }
+
+    .tab-panel {
+      display: none;
+    }
+
+    .tab-panel.active {
+      display: block;
+    }
+
+    .list-panel {
+      overflow: hidden;
+    }
+
+    .list-toolbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 14px;
+      padding: 18px;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .counter {
+      color: var(--muted);
+      font-size: 14px;
+      white-space: nowrap;
+    }
+
+    .search {
+      max-width: 320px;
+    }
+
+    .table-wrap {
+      overflow-x: auto;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      min-width: 920px;
+    }
+
+    th,
+    td {
+      padding: 13px 14px;
+      border-bottom: 1px solid var(--line);
+      text-align: left;
+      vertical-align: top;
+      font-size: 14px;
+    }
+
+    th {
+      background: #f8fbf6;
+      color: #405238;
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.03em;
+    }
+
+    tbody tr:hover {
+      background: #fbfdf9;
+    }
+
+    .empty {
+      padding: 46px 20px;
+      color: var(--muted);
+      text-align: center;
+    }
+
+    .client-name {
+      font-weight: 700;
+    }
+
+    .small-text {
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .badge {
+      display: inline-block;
+      border-radius: 999px;
+      padding: 5px 9px;
+      font-size: 12px;
+      font-weight: 800;
+    }
+
+    .badge.active {
+      background: #e4f5df;
+      color: #21612b;
+    }
+
+    .badge.inactive {
+      background: #f3f0ea;
+      color: #77664b;
+    }
+
+    .product-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      max-width: 280px;
+    }
+
+    .product-tag {
+      display: inline-block;
+      border-radius: 999px;
+      background: #eef7eb;
+      color: #2e6b35;
+      padding: 5px 8px;
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    .row-actions {
+      display: flex;
+      gap: 7px;
+      white-space: nowrap;
+    }
+
+    .summary-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 12px;
+      padding: 18px;
+    }
+
+    .metric-card {
+      position: relative;
+      overflow: hidden;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: linear-gradient(135deg, #fbfff8 0%, #edf8e8 100%);
+      padding: 16px;
+    }
+
+    .metric-card::after {
+      position: absolute;
+      top: -34px;
+      right: -28px;
+      width: 92px;
+      height: 92px;
+      border-radius: 50%;
+      background: rgba(52, 122, 60, 0.11);
+      content: "";
+      animation: floatGlow 4s ease-in-out infinite;
+    }
+
+    .metric-label {
+      color: var(--muted);
+      font-size: 13px;
+      font-weight: 800;
+      text-transform: uppercase;
+    }
+
+    .metric-value {
+      margin-top: 8px;
+      color: var(--primary-dark);
+      font-size: 26px;
+      font-weight: 900;
+    }
+
+    .sales-box {
+      padding: 18px;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .sales-products {
+      display: grid;
+      gap: 10px;
+      margin-top: 4px;
+    }
+
+    .sales-product-row {
+      display: grid;
+      grid-template-columns: minmax(180px, 1fr) 110px;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .sales-product-row span {
+      color: #334231;
+      font-size: 14px;
+      font-weight: 700;
+    }
+
+    .download-note {
+      padding: 0 18px 16px;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .lists-layout {
+      display: grid;
+      grid-template-columns: minmax(280px, 0.75fr) minmax(0, 1.25fr);
+      gap: 18px;
+      padding: 18px;
+    }
+
+    .list-create-card,
+    .saved-list-card {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #fbfdf9;
+      padding: 16px;
+    }
+
+    .list-create-card h3,
+    .saved-list-card h3 {
+      margin: 0 0 12px;
+      font-size: 17px;
+    }
+
+    .list-create-card .actions {
+      margin-top: 12px;
+    }
+
+    .saved-lists {
+      display: grid;
+      gap: 12px;
+    }
+
+    .saved-list-card {
+      background: #ffffff;
+    }
+
+    .saved-list-header {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 12px;
+    }
+
+    .saved-list-header h3 {
+      margin-bottom: 4px;
+    }
+
+    .list-items {
+      display: grid;
+      gap: 8px;
+    }
+
+    .list-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 12px;
+      border: 1px solid var(--line);
+      border-radius: 7px;
+      background: #fbfdf9;
+    }
+
+    .list-item input[type="checkbox"] {
+      width: 18px;
+      height: 18px;
+      accent-color: var(--primary);
+      flex: 0 0 auto;
+    }
+
+    .list-item-text {
+      flex: 1;
+      overflow-wrap: anywhere;
+    }
+
+    .list-item-empty,
+    .lists-empty {
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .lists-empty {
+      padding: 28px 10px;
+      text-align: center;
+    }
+
+    .list-item-count {
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .list-add-row {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 8px;
+      margin-top: 12px;
+    }
+
+    .list-add-row button {
+      padding-inline: 14px;
+    }
+
+    .list-message {
+      min-height: 18px;
+      margin-top: 8px;
+      color: var(--primary-dark);
+      font-size: 13px;
+      font-weight: 700;
+    }
+
+    @keyframes floatGlow {
+      0%,
+      100% {
+        transform: translateY(0) scale(1);
+      }
+
+      50% {
+        transform: translateY(10px) scale(1.08);
+      }
+    }
+
+    @keyframes pulseDot {
+      0% {
+        box-shadow: 0 0 0 0 rgba(52, 122, 60, 0.35);
+      }
+
+      70% {
+        box-shadow: 0 0 0 10px rgba(52, 122, 60, 0);
+      }
+
+      100% {
+        box-shadow: 0 0 0 0 rgba(52, 122, 60, 0);
+      }
+    }
+
+    .client-window {
+      grid-column: 1 / -1;
+      padding: 22px;
+    }
+
+    .client-window-header {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 16px;
+      margin-bottom: 16px;
+    }
+
+    .client-window-header h2 {
+      margin-bottom: 6px;
+    }
+
+    .lookup-bar {
+      display: grid;
+      grid-template-columns: minmax(240px, 1fr) auto;
+      gap: 10px;
+    }
+
+    .lookup-result {
+      display: none;
+      margin-top: 16px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #fbfdf9;
+      padding: 16px;
+    }
+
+    .lookup-result.show {
+      display: block;
+    }
+
+    .lookup-card {
+      display: grid;
+      grid-template-columns: 1.2fr 1fr;
+      gap: 16px;
+    }
+
+    .lookup-card h3 {
+      margin: 0 0 8px;
+      font-size: 18px;
+    }
+
+    .lookup-detail {
+      display: grid;
+      gap: 8px;
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .lookup-detail strong {
+      color: var(--text);
+    }
+
+    @media (max-width: 940px) {
+      main {
+        grid-template-columns: 1fr;
+      }
+
+      .list-toolbar {
+        align-items: stretch;
+        flex-direction: column;
+      }
+
+      .search {
+        max-width: none;
+      }
+
+      .lookup-card {
+        grid-template-columns: 1fr;
+      }
+
+      .summary-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .lists-layout {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media (max-width: 720px) {
+      header {
+        padding: 20px 16px;
+      }
+
+      .header-content,
+      main {
+        width: min(100% - 24px, 1220px);
+      }
+
+      h1 {
+        font-size: 24px;
+      }
+
+      main {
+        gap: 16px;
+        padding: 18px 0;
+      }
+
+      .form-panel,
+      .client-window {
+        padding: 16px;
+      }
+
+      .tabs {
+        overflow-x: auto;
+        padding-bottom: 2px;
+      }
+
+      .tab-button {
+        flex: 0 0 auto;
+      }
+
+      .table-wrap {
+        overflow-x: visible;
+      }
+
+      table {
+        min-width: 0;
+      }
+
+      thead {
+        display: none;
+      }
+
+      tbody,
+      tr,
+      td {
+        display: block;
+        width: 100%;
+      }
+
+      tr {
+        margin: 12px;
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        background: #ffffff;
+        overflow: hidden;
+      }
+
+      td {
+        display: grid;
+        grid-template-columns: 118px 1fr;
+        gap: 10px;
+        border-bottom: 1px solid var(--line);
+        padding: 12px;
+      }
+
+      td:last-child {
+        border-bottom: 0;
+      }
+
+      td::before {
+        content: attr(data-label);
+        color: var(--muted);
+        font-size: 12px;
+        font-weight: 800;
+        text-transform: uppercase;
+      }
+
+      .product-tags {
+        max-width: none;
+      }
+
+      .row-actions {
+        flex-wrap: wrap;
+        white-space: normal;
+      }
+
+      .row-actions button {
+        flex: 1 1 120px;
+      }
+    }
+
+    @media (max-width: 560px) {
+      .field-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .actions {
+        flex-direction: column;
+      }
+
+      .lookup-bar {
+        grid-template-columns: 1fr;
+      }
+
+      .sales-product-row {
+        grid-template-columns: 1fr;
+      }
+
+      .client-window-header {
+        flex-direction: column;
+      }
+
+      td {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="header-content">
+      <div class="brand">Hervago</div>
+      <h1>Control de Clientes</h1>
+      <p class="subtitle">Sistema para registrar datos, RFC, estado y productos naturales que compra cada cliente.</p>
+    </div>
+  </header>
+
+  <main>
+    <section class="panel client-window" aria-labelledby="lookup-title">
+      <div class="client-window-header">
+        <div>
+          <h2 id="lookup-title">Ventana de cliente</h2>
+          <div class="small-text">Busca por nombre, RFC, telefono o producto para ver que compro tu cliente.</div>
+        </div>
+        <span class="badge active">Hervago</span>
+      </div>
+
+      <div class="lookup-bar">
+        <input id="clientLookupInput" type="search" placeholder="Ej. Mariana, GAMM9104287L6, miel depuradora...">
+        <button class="btn-primary" id="clientLookupButton" type="button">Buscar cliente</button>
+      </div>
+
+      <div class="lookup-result" id="lookupResult"></div>
+    </section>
+
+    <section class="panel form-panel" aria-labelledby="form-title">
+      <h2 id="form-title">Agregar cliente</h2>
+      <form id="clientForm">
+        <input id="editingId" name="editingId" type="hidden">
+
+        <div class="field">
+          <label for="clientName">Nombre completo</label>
+          <input id="clientName" name="name" type="text" placeholder="Ej. Ana Lopez" required>
+        </div>
+
+        <div class="field-grid">
+          <div class="field">
+            <label for="clientRfc">RFC</label>
+            <input id="clientRfc" name="rfc" type="text" placeholder="Ej. LOGA9004158H3" required>
+          </div>
+
+          <div class="field">
+            <label for="clientStatus">Estado</label>
+            <select id="clientStatus" name="status">
+              <option value="Activo">Activo</option>
+              <option value="Inactivo">Inactivo</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="field-grid">
+          <div class="field">
+            <label for="clientPhone">Telefono</label>
+            <input id="clientPhone" name="phone" type="tel" placeholder="Ej. 3312345678" required>
+          </div>
+
+          <div class="field">
+            <label for="clientEmail">Correo</label>
+            <input id="clientEmail" name="email" type="email" placeholder="cliente@correo.com">
+          </div>
+        </div>
+
+        <div class="field">
+          <label for="clientAddress">Direccion</label>
+          <input id="clientAddress" name="address" type="text" placeholder="Ciudad, colonia o calle">
+        </div>
+
+        <div class="field">
+          <label>Productos que compra y cantidad</label>
+          <div class="check-list" id="productOptions"></div>
+        </div>
+
+        <div class="field">
+          <label for="purchaseDetail">Detalle especifico de compra</label>
+          <textarea id="purchaseDetail" name="purchaseDetail" placeholder="Ej. Compra 2 frascos de miel depuradora cada mes."></textarea>
+        </div>
+
+        <div class="field">
+          <label for="clientHistory">Historial del cliente</label>
+          <textarea id="clientHistory" name="history" placeholder="Ej. 12/09/2026: Compro 2 mieles y pago en efectivo."></textarea>
+        </div>
+
+        <div class="field">
+          <label for="clientNotes">Notas del cliente</label>
+          <textarea id="clientNotes" name="notes" placeholder="Comentarios importantes del cliente"></textarea>
+        </div>
+
+        <div class="actions">
+          <button class="btn-primary" id="saveButton" type="submit">Guardar cliente</button>
+          <button class="btn-secondary" id="cancelEditButton" type="button">Cancelar edicion</button>
+          <button class="btn-secondary" type="reset">Limpiar</button>
+        </div>
+      </form>
+    </section>
+
+    <section class="panel list-panel" aria-label="Informacion de clientes">
+      <div class="tabs" role="tablist" aria-label="Secciones del sistema">
+        <button class="tab-button active" type="button" data-tab="clientsTab">Clientes</button>
+        <button class="tab-button" type="button" data-tab="salesTab">Ventas</button>
+        <button class="tab-button" type="button" data-tab="purchasesTab">Compras por cliente</button>
+        <button class="tab-button" type="button" data-tab="dateSearchTab">Buscar por fecha</button>
+        <button class="tab-button" type="button" data-tab="cashTab">Caja</button>
+        <button class="tab-button" type="button" data-tab="listsTab">Listados</button>
+      </div>
+
+      <section class="tab-panel active" id="clientsTab">
+        <div class="list-toolbar">
+          <div>
+            <h2>Listado de clientes</h2>
+            <div class="counter" id="clientCounter">0 clientes registrados</div>
+          </div>
+          <input class="search" id="searchInput" type="search" placeholder="Buscar cliente, RFC o producto...">
+        </div>
+
+        <div class="table-wrap" id="tableWrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Cliente</th>
+                <th>RFC</th>
+                <th>Estado</th>
+                <th>Telefono</th>
+                <th>Correo</th>
+                <th>Productos</th>
+                <th>Acciones</th>
+              </tr>
+            </thead>
+            <tbody id="clientTableBody"></tbody>
+          </table>
+        </div>
+        <div class="empty" id="emptyState">Aun no hay clientes registrados.</div>
+      </section>
+
+      <section class="tab-panel" id="purchasesTab">
+        <div class="list-toolbar">
+          <div>
+            <h2>Compras especificas</h2>
+            <div class="counter">Productos naturales Hervago por cliente</div>
+          </div>
+        </div>
+
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Cliente</th>
+                <th>Producto que compra</th>
+                <th>Total por compra</th>
+                <th>Detalle especifico</th>
+                <th>Historial</th>
+                <th>Estado</th>
+              </tr>
+            </thead>
+            <tbody id="purchaseTableBody"></tbody>
+          </table>
+        </div>
+      </section>
+
+      <section class="tab-panel" id="salesTab">
+        <div class="list-toolbar">
+          <div>
+            <h2>Ventas y cortes diarios</h2>
+            <div class="counter" id="cutStatus">Corte diario programado a las 11:00 PM</div>
+          </div>
+          <div class="row-actions">
+            <button class="btn-secondary" id="generateCutButton" type="button">Generar corte de hoy</button>
+            <button class="btn-primary" id="downloadCutButton" type="button">Descargar cierre</button>
+          </div>
+        </div>
+
+        <div class="summary-grid">
+          <div class="metric-card">
+            <div class="metric-label">Ventas de hoy</div>
+            <div class="metric-value" id="todaySalesTotal">$0.00</div>
+          </div>
+          <div class="metric-card">
+            <div class="metric-label">Clientes con compra hoy</div>
+            <div class="metric-value" id="todayClientCount">0</div>
+          </div>
+          <div class="metric-card">
+            <div class="metric-label">Cortes guardados</div>
+            <div class="metric-value" id="cutCount">0</div>
+          </div>
+        </div>
+
+        <form class="sales-box" id="saleForm">
+          <div class="field-grid">
+            <div class="field">
+              <label for="saleClient">Cliente</label>
+              <select id="saleClient" name="clientId" required></select>
+            </div>
+            <div class="field">
+              <label for="saleDate">Fecha de venta</label>
+              <input id="saleDate" name="date" type="date" required>
+            </div>
+          </div>
+
+          <div class="field">
+            <label>Productos vendidos</label>
+            <div class="sales-products" id="saleProductOptions"></div>
+          </div>
+
+          <div class="field">
+            <label for="saleNote">Nota de venta</label>
+            <textarea id="saleNote" name="note" placeholder="Ej. Pago en efectivo, entrega local, pendiente confirmacion."></textarea>
+          </div>
+
+          <div class="actions">
+            <button class="btn-primary" type="submit">Registrar venta</button>
+            <button class="btn-secondary" type="reset">Limpiar venta</button>
+          </div>
+        </form>
+
+        <div class="download-note">El cierre se descarga en CSV con ventas del dia, clientes, productos, cantidades y total.</div>
+
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Fecha</th>
+                <th>Cliente</th>
+                <th>Vendedor</th>
+                <th>Productos vendidos</th>
+                <th>Total</th>
+                <th>Nota</th>
+              </tr>
+            </thead>
+            <tbody id="salesHistoryBody"></tbody>
+          </table>
+        </div>
+
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Fecha de corte</th>
+                <th>Ventas</th>
+                <th>Clientes</th>
+                <th>Total vendido</th>
+                <th>Guardado</th>
+              </tr>
+            </thead>
+            <tbody id="dailyCutsBody"></tbody>
+          </table>
+        </div>
+      </section>
+
+      <section class="tab-panel" id="dateSearchTab">
+        <div class="list-toolbar">
+          <div>
+            <h2>Buscar por fecha y año</h2>
+            <div class="counter" id="dateSearchStatus">Consulta ventas y cortes guardados por año o fecha exacta.</div>
+          </div>
+        </div>
+
+        <div class="sales-box">
+          <div class="field-grid">
+            <div class="field">
+              <label for="yearFilter">Año</label>
+              <select id="yearFilter"></select>
+            </div>
+            <div class="field">
+              <label for="exactDateFilter">Fecha exacta</label>
+              <input id="exactDateFilter" type="date">
+            </div>
+          </div>
+
+          <div class="actions">
+            <button class="btn-primary" id="applyDateFilterButton" type="button">Buscar fecha</button>
+            <button class="btn-secondary" id="clearDateFilterButton" type="button">Limpiar busqueda</button>
+          </div>
+        </div>
+
+        <div class="summary-grid">
+          <div class="metric-card">
+            <div class="metric-label">Ventas encontradas</div>
+            <div class="metric-value" id="filteredSalesCount">0</div>
+          </div>
+          <div class="metric-card">
+            <div class="metric-label">Total vendido</div>
+            <div class="metric-value" id="filteredSalesTotal">$0.00</div>
+          </div>
+          <div class="metric-card">
+            <div class="metric-label">Cortes encontrados</div>
+            <div class="metric-value" id="filteredCutsCount">0</div>
+          </div>
+        </div>
+
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Fecha</th>
+                <th>Cliente</th>
+                <th>Vendedor</th>
+                <th>Productos vendidos</th>
+                <th>Total</th>
+                <th>Nota</th>
+              </tr>
+            </thead>
+            <tbody id="filteredSalesBody"></tbody>
+          </table>
+        </div>
+
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Fecha de corte</th>
+                <th>Ventas</th>
+                <th>Clientes</th>
+                <th>Total vendido</th>
+                <th>Guardado</th>
+              </tr>
+            </thead>
+            <tbody id="filteredCutsBody"></tbody>
+          </table>
+        </div>
+      </section>
+
+      <section class="tab-panel" id="cashTab">
+        <div class="list-toolbar">
+          <div>
+            <h2>Caja de vendedores</h2>
+            <div class="counter" id="cashStatus">Cada vendedor registra sus ventas con su codigo.</div>
+          </div>
+        </div>
+
+        <div class="summary-grid">
+          <div class="metric-card">
+            <div class="metric-label">Susana</div>
+            <div class="metric-value">SUS-101</div>
+          </div>
+          <div class="metric-card">
+            <div class="metric-label">Moisés</div>
+            <div class="metric-value">MOI-202</div>
+          </div>
+          <div class="metric-card">
+            <div class="metric-label">Tomás</div>
+            <div class="metric-value">TOM-303</div>
+          </div>
+        </div>
+
+        <form class="sales-box" id="cashForm">
+          <div class="field-grid">
+            <div class="field">
+              <label for="cashSellerCode">Codigo del vendedor</label>
+              <input id="cashSellerCode" name="sellerCode" type="text" placeholder="Ej. SUS-101" required>
+            </div>
+            <div class="field">
+              <label for="cashDate">Fecha de venta</label>
+              <input id="cashDate" name="date" type="date" required>
+            </div>
+          </div>
+
+          <div class="field">
+            <label for="cashClient">Cliente</label>
+            <select id="cashClient" name="clientId" required></select>
+          </div>
+
+          <div class="field">
+            <label>Productos vendidos en caja</label>
+            <div class="sales-products" id="cashProductOptions"></div>
+          </div>
+
+          <div class="field">
+            <label for="cashNote">Nota de venta</label>
+            <textarea id="cashNote" name="note" placeholder="Ej. Venta registrada por vendedor, pago en efectivo."></textarea>
+          </div>
+
+          <div class="actions">
+            <button class="btn-primary" type="submit">Registrar venta en caja</button>
+            <button class="btn-secondary" type="reset">Limpiar caja</button>
+          </div>
+        </form>
+
+        <div class="list-toolbar">
+          <div>
+            <h2>KPIs semanales por vendedor</h2>
+            <div class="counter" id="sellerKpiStatus">Semana actual</div>
+          </div>
+        </div>
+
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Vendedor</th>
+                <th>Codigo</th>
+                <th>Ventas semana</th>
+                <th>Total vendido</th>
+                <th>Productos vendidos</th>
+              </tr>
+            </thead>
+            <tbody id="sellerKpiBody"></tbody>
+          </table>
+        </div>
+      </section>
+
+      <section class="tab-panel" id="listsTab">
+        <div class="list-toolbar">
+          <div>
+            <h2>Mis listados</h2>
+            <div class="counter" id="listsCounter">Crea listados y marca cada elemento al completarlo.</div>
+            <div class="small-text" id="firebaseStatus">Conectando con Firebase...</div>
+          </div>
+        </div>
+
+        <div class="lists-layout">
+          <form class="list-create-card" id="listForm">
+            <h3>Crear un listado</h3>
+            <div class="field">
+              <label for="listName">Nombre del listado</label>
+              <input id="listName" type="text" placeholder="Ej. Pendientes de hoy" required>
+            </div>
+            <div class="field">
+              <label for="firstListItem">Primer elemento (opcional)</label>
+              <input id="firstListItem" type="text" placeholder="Ej. Confirmar pedido de Mariana">
+            </div>
+            <button class="btn-primary" type="submit">Guardar listado</button>
+            <div class="list-message" id="listMessage" role="status"></div>
+          </form>
+
+          <div>
+            <div class="saved-lists" id="savedLists"></div>
+            <div class="lists-empty" id="listsEmpty">Todavía no tienes listados guardados.</div>
+          </div>
+        </div>
+      </section>
+    </section>
+  </main>
+
+  <script type="module">
+    import { initializeApp } from 'https://www.gstatic.com/firebasejs/12.19.0/firebase-app.js';
+    import { getAuth, signInAnonymously } from 'https://www.gstatic.com/firebasejs/12.19.0/firebase-auth.js';
+    import { getFirestore, doc, getDoc, setDoc, serverTimestamp } from 'https://www.gstatic.com/firebasejs/12.19.0/firebase-firestore.js';
+
+    const firebaseConfig = {
+      apiKey: 'AIzaSyAmPtmyZ4FuyoXjojHsCcmVP2Amj--YgDY',
+      authDomain: 'hervago.firebaseapp.com',
+      projectId: 'hervago',
+      storageBucket: 'hervago.firebasestorage.app',
+      messagingSenderId: '451176229718',
+      appId: '1:451176229718:web:e3c81a9edfae78946f44f7'
+    };
+
+    const firebaseApp = initializeApp(firebaseConfig);
+    const firebaseAuth = getAuth(firebaseApp);
+    const firestore = getFirestore(firebaseApp);
+
+    const STORAGE_KEY = 'hervago-client-list';
+    const SALES_STORAGE_KEY = 'hervago-sales-history';
+    const CUTS_STORAGE_KEY = 'hervago-daily-cuts';
+    const LISTS_STORAGE_KEY = 'hervago-saved-lists';
+    const VERSION_KEY = 'hervago-client-list-version';
+    const APP_VERSION = '7';
+    const form = document.getElementById('clientForm');
+    const tableBody = document.getElementById('clientTableBody');
+    const purchaseTableBody = document.getElementById('purchaseTableBody');
+    const emptyState = document.getElementById('emptyState');
+    const tableWrap = document.getElementById('tableWrap');
+    const counter = document.getElementById('clientCounter');
+    const searchInput = document.getElementById('searchInput');
+    const formTitle = document.getElementById('form-title');
+    const saveButton = document.getElementById('saveButton');
+    const cancelEditButton = document.getElementById('cancelEditButton');
+    const productOptions = document.getElementById('productOptions');
+    const clientLookupInput = document.getElementById('clientLookupInput');
+    const clientLookupButton = document.getElementById('clientLookupButton');
+    const lookupResult = document.getElementById('lookupResult');
+    const saleForm = document.getElementById('saleForm');
+    const saleClient = document.getElementById('saleClient');
+    const saleDate = document.getElementById('saleDate');
+    const saleProductOptions = document.getElementById('saleProductOptions');
+    const salesHistoryBody = document.getElementById('salesHistoryBody');
+    const dailyCutsBody = document.getElementById('dailyCutsBody');
+    const todaySalesTotal = document.getElementById('todaySalesTotal');
+    const todayClientCount = document.getElementById('todayClientCount');
+    const cutCount = document.getElementById('cutCount');
+    const cutStatus = document.getElementById('cutStatus');
+    const generateCutButton = document.getElementById('generateCutButton');
+    const downloadCutButton = document.getElementById('downloadCutButton');
+    const yearFilter = document.getElementById('yearFilter');
+    const exactDateFilter = document.getElementById('exactDateFilter');
+    const applyDateFilterButton = document.getElementById('applyDateFilterButton');
+    const clearDateFilterButton = document.getElementById('clearDateFilterButton');
+    const dateSearchStatus = document.getElementById('dateSearchStatus');
+    const filteredSalesCount = document.getElementById('filteredSalesCount');
+    const filteredSalesTotal = document.getElementById('filteredSalesTotal');
+    const filteredCutsCount = document.getElementById('filteredCutsCount');
+    const filteredSalesBody = document.getElementById('filteredSalesBody');
+    const filteredCutsBody = document.getElementById('filteredCutsBody');
+    const cashForm = document.getElementById('cashForm');
+    const cashSellerCode = document.getElementById('cashSellerCode');
+    const cashDate = document.getElementById('cashDate');
+    const cashClient = document.getElementById('cashClient');
+    const cashProductOptions = document.getElementById('cashProductOptions');
+    const cashStatus = document.getElementById('cashStatus');
+    const sellerKpiStatus = document.getElementById('sellerKpiStatus');
+    const sellerKpiBody = document.getElementById('sellerKpiBody');
+    const listForm = document.getElementById('listForm');
+    const listName = document.getElementById('listName');
+    const firstListItem = document.getElementById('firstListItem');
+    const savedLists = document.getElementById('savedLists');
+    const listsEmpty = document.getElementById('listsEmpty');
+    const listsCounter = document.getElementById('listsCounter');
+    const listMessage = document.getElementById('listMessage');
+    const firebaseStatus = document.getElementById('firebaseStatus');
+
+    let firebaseUser = null;
+    let hydratingFromCloud = false;
+    let cloudSyncTimer = null;
+
+    const productCatalog = [
+      { name: 'Miel depuradora', price: 45 },
+      { name: 'Relajante natural', price: 45 },
+      { name: 'Pomada crema blanquita', price: 50 }
+    ];
+
+    const sellerCatalog = [
+      { name: 'Susana', code: 'SUS-101' },
+      { name: 'Moisés', code: 'MOI-202' },
+      { name: 'Tomás', code: 'TOM-303' }
+    ];
+
+    const defaultSales = [
+      {
+        id: 'sale-1',
+        date: '2026-09-18',
+        clientId: 'hervago-1',
+        products: [
+          { name: 'Miel depuradora', quantity: 2, price: 45 },
+          { name: 'Pomada crema blanquita', quantity: 1, price: 50 }
+        ],
+        sellerCode: 'SUS-101',
+        note: 'Compra recurrente mensual. Pago en efectivo.'
+      },
+      {
+        id: 'sale-2',
+        date: '2026-09-18',
+        clientId: 'hervago-2',
+        products: [
+          { name: 'Relajante natural', quantity: 3, price: 45 }
+        ],
+        sellerCode: 'MOI-202',
+        note: 'Entrega por la tarde.'
+      },
+      {
+        id: 'sale-3',
+        date: '2026-09-17',
+        clientId: 'hervago-6',
+        products: [
+          { name: 'Miel depuradora', quantity: 1, price: 45 },
+          { name: 'Relajante natural', quantity: 2, price: 45 },
+          { name: 'Pomada crema blanquita', quantity: 1, price: 50 }
+        ],
+        sellerCode: 'TOM-303',
+        note: 'Paquete completo Hervago.'
+      }
+    ];
+
+    const defaultDailyCuts = [
+      {
+        id: 'cut-2026-09-17',
+        date: '2026-09-17',
+        salesCount: 1,
+        clientCount: 1,
+        total: 185,
+        savedAt: '17/09/2026, 11:00:00 p.m.'
+      }
+    ];
+
+    const defaultClients = [
+      {
+        id: 'hervago-1',
+        name: 'Mariana Garcia',
+        rfc: 'GAMM9104287L6',
+        status: 'Activo',
+        phone: '3312345678',
+        email: 'mariana.garcia@correo.com',
+        address: 'Guadalajara, Jalisco',
+        products: ['Miel depuradora', 'Pomada crema blanquita'],
+        productQuantities: {"Miel depuradora":2,"Pomada crema blanquita":1},
+        purchaseDetail: 'Compra 2 frascos de miel depuradora ($45 c/u) cada mes y 1 pomada crema blanquita ($50) cada 45 dias para cuidado de la piel.',
+        history: '10/09/2026: Compro 2 mieles depuradoras y 1 pomada crema blanquita. Pago en efectivo.\n25/09/2026: Solicito recordatorio para su siguiente pedido.',
+        notes: 'Cliente constante. Pide recordatorio por WhatsApp cuando se acerca su siguiente compra.'
+      },
+      {
+        id: 'hervago-2',
+        name: 'Carlos Ramirez',
+        rfc: 'RACC850712MN4',
+        status: 'Activo',
+        phone: '3339876543',
+        email: 'carlos.ramirez@correo.com',
+        address: 'Zapopan, Jalisco',
+        products: ['Relajante natural'],
+        productQuantities: {"Relajante natural":3},
+        purchaseDetail: 'Compra 3 relajantes naturales por pedido, normalmente cada 30 dias, para uso personal y familiar.',
+        history: '08/09/2026: Compro 3 relajantes naturales. Pidio entrega por la tarde.\n18/09/2026: Pregunto por disponibilidad para recompra mensual.',
+        notes: 'Prefiere contacto por WhatsApp y entrega por la tarde.'
+      },
+      {
+        id: 'hervago-3',
+        name: 'Laura Hernandez',
+        rfc: 'HELA930905Q29',
+        status: 'Activo',
+        phone: '3324567890',
+        email: 'laura.hernandez@correo.com',
+        address: 'Tlaquepaque, Jalisco',
+        products: ['Miel depuradora'],
+        productQuantities: {"Miel depuradora":1},
+        purchaseDetail: 'Compra 1 frasco de miel depuradora cada 15 dias. Le interesa mantener compra recurrente.',
+        history: '12/09/2026: Primera compra de 1 miel depuradora.\n17/09/2026: Solicito informacion de modo de uso.',
+        notes: 'Cliente nueva. Quiere informacion clara de beneficios y modo de uso.'
+      },
+      {
+        id: 'hervago-4',
+        name: 'Fernanda Torres',
+        rfc: 'TOFF880219K75',
+        status: 'Activo',
+        phone: '3318765432',
+        email: 'fernanda.torres@correo.com',
+        address: 'Tonala, Jalisco',
+        products: ['Pomada crema blanquita'],
+        productQuantities: {"Pomada crema blanquita":2},
+        purchaseDetail: 'Compra 2 piezas de pomada crema blanquita ($50 c/u) cada mes. Suele pedir una para ella y otra para regalo.',
+        history: '05/09/2026: Compro 2 pomadas crema blanquita.\n16/09/2026: Pregunto por promocion comprando varias piezas.',
+        notes: 'Le interesa promocion por paquete si compra mas de una pieza.'
+      },
+      {
+        id: 'hervago-5',
+        name: 'Jorge Mendoza',
+        rfc: 'MEJJ790611P83',
+        status: 'Inactivo',
+        phone: '3311122233',
+        email: 'jorge.mendoza@correo.com',
+        address: 'Tlajomulco, Jalisco',
+        products: ['Miel depuradora', 'Relajante natural'],
+        productQuantities: {"Miel depuradora":1,"Relajante natural":1},
+        purchaseDetail: 'Su ultima compra fue 1 miel depuradora y 1 relajante natural. No ha comprado en los ultimos 60 dias.',
+        history: '01/08/2026: Compro 1 miel depuradora y 1 relajante natural.\n15/09/2026: Pendiente reactivar con promocion.',
+        notes: 'Conviene darle seguimiento con oferta de reactivacion.'
+      },
+      {
+        id: 'hervago-6',
+        name: 'Patricia Lopez',
+        rfc: 'LOPP8211302A1',
+        status: 'Activo',
+        phone: '3332109876',
+        email: 'patricia.lopez@correo.com',
+        address: 'Guadalajara, Jalisco',
+        products: ['Miel depuradora', 'Relajante natural', 'Pomada crema blanquita'],
+        productQuantities: {"Miel depuradora":1,"Relajante natural":2,"Pomada crema blanquita":1},
+        purchaseDetail: 'Compra paquete completo: 1 miel depuradora ($45), 2 relajantes naturales ($45 c/u) y 1 pomada crema blanquita ($50) cada mes.',
+        history: '03/09/2026: Compro paquete completo Hervago.\n14/09/2026: Recomendada para promocion mensual por volumen.',
+        notes: 'Cliente ideal para promociones de paquete Hervago.'
+      },
+      {
+        id: 'hervago-7',
+        name: 'Ricardo Sanchez',
+        rfc: 'SARR900304H51',
+        status: 'Activo',
+        phone: '3322224455',
+        email: 'ricardo.sanchez@correo.com',
+        address: 'Zapopan, Jalisco',
+        products: ['Relajante natural', 'Pomada crema blanquita'],
+        productQuantities: {"Relajante natural":2,"Pomada crema blanquita":1},
+        purchaseDetail: 'Compra 2 relajantes naturales ($45 c/u) cada 20 dias y 1 pomada crema blanquita ($50) cuando hay promocion.',
+        history: '07/09/2026: Compro 2 relajantes naturales y 1 pomada crema blanquita.\n20/09/2026: Pidio confirmar existencias antes de compra.',
+        notes: 'Pregunta por disponibilidad antes de hacer pedido.'
+      },
+      {
+        id: 'hervago-8',
+        name: 'Sofia Navarro',
+        rfc: 'NASO950817D64',
+        status: 'Activo',
+        phone: '3319988776',
+        email: 'sofia.navarro@correo.com',
+        address: 'El Salto, Jalisco',
+        products: ['Miel depuradora'],
+        productQuantities: {"Miel depuradora":3},
+        purchaseDetail: 'Compra 3 frascos de miel depuradora cada mes para compartir con su familia.',
+        history: '09/09/2026: Compro 3 mieles depuradoras para familia.\n21/09/2026: Prefiere entrega de fin de semana.',
+        notes: 'Busca entregas puntuales los fines de semana.'
+      },
+      {
+        id: 'hervago-9',
+        name: 'Alejandro Martinez Lopez',
+        rfc: 'MALA920514QX3',
+        status: 'Activo',
+        phone: '3314567890',
+        email: 'alejandro.martinez@correo.com',
+        address: 'Guadalajara, Jalisco',
+        products: ['Miel depuradora', 'Relajante natural'],
+        productQuantities: {"Miel depuradora":2,"Relajante natural":1},
+        purchaseDetail: 'Compra 2 frascos de miel depuradora ($45 c/u) y 1 relajante natural ($45) cada mes.',
+        history: '22/09/2026: Compro 2 mieles depuradoras y 1 relajante natural. Pago con tarjeta.\n25/09/2026: Solicito aviso cuando haya disponibilidad.',
+        notes: 'Prefiere recibir confirmacion por WhatsApp antes de cada entrega.'
+      },
+      {
+        id: 'hervago-10',
+        name: 'Gabriela Torres Ramirez',
+        rfc: 'TORG890728LJ6',
+        status: 'Activo',
+        phone: '3337654321',
+        email: 'gabriela.torres@correo.com',
+        address: 'Zapopan, Jalisco',
+        products: ['Pomada crema blanquita'],
+        productQuantities: {"Pomada crema blanquita":3},
+        purchaseDetail: 'Compra 3 pomadas crema blanquita ($50 c/u) cada 30 dias para uso personal y familiar.',
+        history: '20/09/2026: Compro 3 pomadas crema blanquita.\n24/09/2026: Pregunto por promociones por volumen.',
+        notes: 'Interesada en paquetes de tres piezas y entregas por la tarde.'
+      },
+      {
+        id: 'hervago-11',
+        name: 'Miguel Angel Hernandez Soto',
+        rfc: 'HESM8503117B2',
+        status: 'Activo',
+        phone: '3323456789',
+        email: 'miguel.hernandez@correo.com',
+        address: 'Tlaquepaque, Jalisco',
+        products: ['Relajante natural', 'Miel depuradora'],
+        productQuantities: {"Relajante natural":2,"Miel depuradora":1},
+        purchaseDetail: 'Compra 2 relajantes naturales ($45 c/u) y 1 miel depuradora ($45) cada 20 dias.',
+        history: '19/09/2026: Compro 2 relajantes naturales y 1 miel depuradora.\n23/09/2026: Confirmo que desea mantener compra recurrente.',
+        notes: 'Cliente recurrente. Conviene contactarlo antes de la fecha estimada de recompra.'
+      },
+      {
+        id: 'hervago-12',
+        name: 'Daniela Flores Castillo',
+        rfc: 'FOCD940906R18',
+        status: 'Activo',
+        phone: '3318765401',
+        email: 'daniela.flores@correo.com',
+        address: 'Tonala, Jalisco',
+        products: ['Miel depuradora', 'Pomada crema blanquita'],
+        productQuantities: {"Miel depuradora":1,"Pomada crema blanquita":2},
+        purchaseDetail: 'Compra 1 miel depuradora ($45) y 2 pomadas crema blanquita ($50 c/u) cada mes.',
+        history: '18/09/2026: Primera compra de 1 miel depuradora y 2 pomadas.\n24/09/2026: Solicita informacion de promociones mensuales.',
+        notes: 'Prefiere recoger su pedido en un punto acordado de Tonala.'
+      },
+      {
+        id: 'hervago-13',
+        name: 'Ernesto Gomez Navarro',
+        rfc: 'GONE780122M47',
+        status: 'Inactivo',
+        phone: '3339988771',
+        email: 'ernesto.gomez@correo.com',
+        address: 'Tlajomulco, Jalisco',
+        products: ['Miel depuradora', 'Relajante natural', 'Pomada crema blanquita'],
+        productQuantities: {"Miel depuradora":1,"Relajante natural":1,"Pomada crema blanquita":1},
+        purchaseDetail: 'Su ultima compra fue un paquete completo: 1 miel depuradora ($45), 1 relajante natural ($45) y 1 pomada crema blanquita ($50).',
+        history: '28/08/2026: Compro paquete completo Hervago.\n25/09/2026: Pendiente contacto para reactivar compra.',
+        notes: 'Cliente inactivo. Recomendada una promocion de reactivacion.'
+      }
+    ];
+
+    renderProductOptions();
+    renderSaleProductOptions();
+    renderCashProductOptions();
+
+    let clients = loadClients();
+    let sales = loadStoredList(SALES_STORAGE_KEY, defaultSales);
+    let dailyCuts = loadStoredList(CUTS_STORAGE_KEY, defaultDailyCuts);
+    let savedListsData = loadLists();
+    ensureStarterClients();
+    saveClients();
+    resetFormMode();
+    saveSales();
+    saveDailyCuts();
+    saveLists();
+
+    function loadLists() {
+      try {
+        const stored = JSON.parse(localStorage.getItem(LISTS_STORAGE_KEY) || '[]');
+        return Array.isArray(stored) ? stored : [];
+      } catch (error) {
+        return [];
+      }
+    }
+
+    function saveLists() {
+      localStorage.setItem(LISTS_STORAGE_KEY, JSON.stringify(savedListsData));
+      scheduleCloudSync();
+    }
+
+    function ensureStarterClients() {
+      const starterClients = defaultClients.filter((client) => /^hervago-(9|10|11|12|13)$/.test(client.id));
+      const existingIds = new Set(clients.map((client) => client.id));
+      starterClients.forEach((client) => {
+        if (!existingIds.has(client.id)) {
+          clients.push(client);
+        }
+      });
+    }
+
+    function loadClients() {
+      const savedVersion = localStorage.getItem(VERSION_KEY);
+      const savedClients = JSON.parse(localStorage.getItem(STORAGE_KEY) || 'null');
+      if (savedVersion === APP_VERSION && Array.isArray(savedClients)) {
+        return savedClients;
+      }
+
+      return defaultClients;
+    }
+
+    function loadStoredList(key, fallback) {
+      const savedVersion = localStorage.getItem(VERSION_KEY);
+      const savedItems = JSON.parse(localStorage.getItem(key) || 'null');
+      if (savedVersion === APP_VERSION && Array.isArray(savedItems)) {
+        return savedItems;
+      }
+
+      return fallback;
+    }
+
+    function saveClients() {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(clients));
+      localStorage.setItem(VERSION_KEY, APP_VERSION);
+      scheduleCloudSync();
+    }
+
+    function saveSales() {
+      localStorage.setItem(SALES_STORAGE_KEY, JSON.stringify(sales));
+      localStorage.setItem(VERSION_KEY, APP_VERSION);
+      scheduleCloudSync();
+    }
+
+    function saveDailyCuts() {
+      localStorage.setItem(CUTS_STORAGE_KEY, JSON.stringify(dailyCuts));
+      localStorage.setItem(VERSION_KEY, APP_VERSION);
+      scheduleCloudSync();
+    }
+
+    function setFirebaseStatus(message, isError = false) {
+      firebaseStatus.textContent = message;
+      firebaseStatus.style.color = isError ? 'var(--danger)' : 'var(--muted)';
+    }
+
+    function scheduleCloudSync() {
+      if (!firebaseUser || hydratingFromCloud) return;
+      window.clearTimeout(cloudSyncTimer);
+      cloudSyncTimer = window.setTimeout(syncDataToCloud, 500);
+    }
+
+    async function syncDataToCloud() {
+      if (!firebaseUser || hydratingFromCloud) return;
+
+      try {
+        await setDoc(doc(firestore, 'users', firebaseUser.uid), {
+          clients,
+          sales,
+          dailyCuts,
+          lists: savedListsData,
+          updatedAt: serverTimestamp()
+        }, { merge: true });
+        setFirebaseStatus('Firebase conectado · datos guardados en la nube.');
+      } catch (error) {
+        console.error('No se pudo guardar en Firebase:', error);
+        setFirebaseStatus('Firebase conectado, pero no se pudo guardar. Revisa las reglas.', true);
+      }
+    }
+
+    function renderAllModules() {
+      renderClients();
+      renderSalesModule();
+      renderSellerKpis();
+      renderDateSearch();
+      renderLists();
+    }
+
+    async function loadDataFromCloud() {
+      try {
+        setFirebaseStatus('Firebase conectado · cargando datos...');
+        const cloudRef = doc(firestore, 'users', firebaseUser.uid);
+        const cloudSnapshot = await getDoc(cloudRef);
+
+        if (cloudSnapshot.exists()) {
+          const cloudData = cloudSnapshot.data();
+          hydratingFromCloud = true;
+          clients = Array.isArray(cloudData.clients) ? cloudData.clients : clients;
+          sales = Array.isArray(cloudData.sales) ? cloudData.sales : sales;
+          dailyCuts = Array.isArray(cloudData.dailyCuts) ? cloudData.dailyCuts : dailyCuts;
+          savedListsData = Array.isArray(cloudData.lists) ? cloudData.lists : savedListsData;
+          const starterClientCount = clients.length;
+          ensureStarterClients();
+          const addedStarterClients = clients.length > starterClientCount;
+          saveClients();
+          saveSales();
+          saveDailyCuts();
+          saveLists();
+          hydratingFromCloud = false;
+          renderAllModules();
+          if (addedStarterClients) await syncDataToCloud();
+          setFirebaseStatus('Firebase conectado · datos cargados desde la nube.');
+        } else {
+          await syncDataToCloud();
+        }
+      } catch (error) {
+        hydratingFromCloud = false;
+        console.error('No se pudieron cargar los datos de Firebase:', error);
+        setFirebaseStatus('Modo local · activa Authentication y publica las reglas de Firestore.', true);
+      }
+    }
+
+    signInAnonymously(firebaseAuth)
+      .then((credential) => {
+        firebaseUser = credential.user;
+        return loadDataFromCloud();
+      })
+      .catch((error) => {
+        console.error('No se pudo iniciar sesión anónima en Firebase:', error);
+        setFirebaseStatus('Modo local · habilita el proveedor Anónimo en Authentication.', true);
+      });
+
+    function normalizeText(value) {
+      return value.toLowerCase().trim();
+    }
+
+    function escapeHtml(value) {
+      return String(value)
+        .replaceAll('&', '&amp;')
+        .replaceAll('<', '&lt;')
+        .replaceAll('>', '&gt;')
+        .replaceAll('"', '&quot;')
+        .replaceAll("'", '&#039;');
+    }
+
+    function formatMoney(amount) {
+      return `$${amount.toFixed(2)}`;
+    }
+
+    function getTodayDate() {
+      return new Date().toISOString().slice(0, 10);
+    }
+
+    function getNowText() {
+      return new Date().toLocaleString('es-MX');
+    }
+
+    function getProductPrice(productName) {
+      const product = productCatalog.find((item) => item.name === productName);
+      return product ? product.price : 0;
+    }
+
+    function getProductQuantity(client, productName) {
+      return Number(client.productQuantities?.[productName] || 1);
+    }
+
+    function getProductsTotal(products, productQuantities = {}) {
+      return products.reduce((total, productName) => {
+        const quantity = Number(productQuantities[productName] || 1);
+        return total + (getProductPrice(productName) * quantity);
+      }, 0);
+    }
+
+    function getSaleTotal(sale) {
+      return sale.products.reduce((total, product) => total + (product.price * product.quantity), 0);
+    }
+
+    function getSellerByCode(code) {
+      return sellerCatalog.find((seller) => seller.code === String(code || '').trim().toUpperCase());
+    }
+
+    function getSellerName(code) {
+      const seller = getSellerByCode(code);
+      return seller ? seller.name : 'Sin vendedor';
+    }
+
+    function dateStringToLocalDate(dateString) {
+      const [year, month, day] = dateString.split('-').map(Number);
+      return new Date(year, month - 1, day);
+    }
+
+    function getWeekRange(date = new Date()) {
+      const start = new Date(date);
+      const day = start.getDay() || 7;
+      start.setDate(start.getDate() - day + 1);
+      start.setHours(0, 0, 0, 0);
+      const end = new Date(start);
+      end.setDate(start.getDate() + 6);
+      end.setHours(23, 59, 59, 999);
+      return { start, end };
+    }
+
+    function saleIsInCurrentWeek(sale) {
+      const { start, end } = getWeekRange();
+      const saleDateValue = dateStringToLocalDate(sale.date);
+      return saleDateValue >= start && saleDateValue <= end;
+    }
+
+    function renderProductOptions() {
+      productOptions.innerHTML = productCatalog.map((product) => {
+        return `
+          <label>
+            <input name="products" type="checkbox" value="${escapeHtml(product.name)}">
+            ${escapeHtml(product.name)} - ${formatMoney(product.price)}
+          </label>
+          <input name="quantity-${escapeHtml(product.name)}" type="number" min="1" value="1" aria-label="Cantidad de ${escapeHtml(product.name)}">
+        `;
+      }).join('');
+    }
+
+    function renderSaleProductOptions() {
+      saleProductOptions.innerHTML = productCatalog.map((product) => {
+        return `
+          <div class="sales-product-row">
+            <span>${escapeHtml(product.name)} - ${formatMoney(product.price)}</span>
+            <input name="sale-${escapeHtml(product.name)}" type="number" min="0" value="0" aria-label="Cantidad vendida de ${escapeHtml(product.name)}">
+          </div>
+        `;
+      }).join('');
+    }
+
+    function renderCashProductOptions() {
+      cashProductOptions.innerHTML = productCatalog.map((product) => {
+        return `
+          <div class="sales-product-row">
+            <span>${escapeHtml(product.name)} - ${formatMoney(product.price)}</span>
+            <input name="cash-${escapeHtml(product.name)}" type="number" min="0" value="0" aria-label="Cantidad vendida de ${escapeHtml(product.name)}">
+          </div>
+        `;
+      }).join('');
+    }
+
+    function productTags(products, productQuantities = {}) {
+      if (!products.length) return '<span class="small-text">Sin producto asignado</span>';
+      return products.map((product) => {
+        const quantity = Number(productQuantities[product] || 1);
+        const subtotal = getProductPrice(product) * quantity;
+        return `<span class="product-tag">${escapeHtml(product)} x${quantity} - ${formatMoney(subtotal)}</span>`;
+      }).join('');
+    }
+
+    function statusBadge(status) {
+      const statusClass = status === 'Activo' ? 'active' : 'inactive';
+      return `<span class="badge ${statusClass}">${escapeHtml(status)}</span>`;
+    }
+
+    function clientMatchesSearch(client, searchTerm) {
+      const searchable = [
+        client.name,
+        client.rfc,
+        client.status,
+        client.phone,
+        client.email,
+        client.address,
+        client.purchaseDetail,
+        client.notes,
+        client.products.join(' '),
+        client.history || '',
+        Object.values(client.productQuantities || {}).join(' ')
+      ].join(' ');
+
+      return normalizeText(searchable).includes(searchTerm);
+    }
+
+    function switchTab(tabId) {
+      document.querySelectorAll('.tab-button').forEach((tab) => {
+        tab.classList.toggle('active', tab.dataset.tab === tabId);
+      });
+      document.querySelectorAll('.tab-panel').forEach((panel) => {
+        panel.classList.toggle('active', panel.id === tabId);
+      });
+    }
+
+    function renderLists() {
+      const activeItems = savedListsData.reduce((total, list) => total + list.items.length, 0);
+      listsCounter.textContent = `${savedListsData.length} ${savedListsData.length === 1 ? 'listado guardado' : 'listados guardados'} · ${activeItems} ${activeItems === 1 ? 'elemento pendiente' : 'elementos pendientes'}`;
+      savedLists.innerHTML = savedListsData.map((list) => {
+        const itemMarkup = list.items.length
+          ? list.items.map((item) => `
+              <label class="list-item">
+                <input type="checkbox" data-list-action="complete-item" data-list-id="${list.id}" data-item-id="${item.id}" aria-label="Completar ${escapeHtml(item.text)}">
+                <span class="list-item-text">${escapeHtml(item.text)}</span>
+              </label>
+            `).join('')
+          : '<div class="list-item-empty">Todos los elementos de este listado fueron completados.</div>';
+
+        return `
+          <article class="saved-list-card">
+            <div class="saved-list-header">
+              <div>
+                <h3>${escapeHtml(list.name)}</h3>
+                <div class="list-item-count">${list.items.length} ${list.items.length === 1 ? 'elemento pendiente' : 'elementos pendientes'}</div>
+              </div>
+              <button class="btn-danger" type="button" data-list-action="delete-list" data-list-id="${list.id}">Eliminar listado</button>
+            </div>
+            <div class="list-items">${itemMarkup}</div>
+            <form class="list-add-row" data-list-form="add-item" data-list-id="${list.id}">
+              <input type="text" name="itemText" placeholder="Agregar otro elemento" aria-label="Agregar elemento a ${escapeHtml(list.name)}" required>
+              <button class="btn-secondary" type="submit">Agregar</button>
+            </form>
+          </article>
+        `;
+      }).join('');
+      listsEmpty.style.display = savedListsData.length ? 'none' : 'block';
+    }
+
+    function showListMessage(message) {
+      listMessage.textContent = message;
+      window.clearTimeout(showListMessage.timer);
+      showListMessage.timer = window.setTimeout(() => {
+        listMessage.textContent = '';
+      }, 2600);
+    }
+
+    function focusAddClient(searchValue) {
+      resetFormMode();
+      document.getElementById('clientName').value = searchValue;
+      form.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      document.getElementById('clientName').focus();
+    }
+
+    function renderLookupResult(client, searchValue) {
+      lookupResult.classList.add('show');
+
+      if (!client) {
+        lookupResult.innerHTML = `
+          <div class="lookup-card">
+            <div>
+              <h3>Cliente no encontrado</h3>
+              <div class="lookup-detail">
+                <span>No existe un cliente con: <strong>${escapeHtml(searchValue || 'tu busqueda')}</strong></span>
+                <span>Puedes agregarlo al sistema y registrar que producto compra.</span>
+              </div>
+            </div>
+            <div class="row-actions">
+              <button class="btn-primary" type="button" data-lookup-action="add">Agregar cliente</button>
+              <button class="btn-secondary" type="button" data-lookup-action="clear">Nueva busqueda</button>
+            </div>
+          </div>
+        `;
+        return;
+      }
+
+      lookupResult.innerHTML = `
+        <div class="lookup-card">
+          <div>
+            <h3>${escapeHtml(client.name)}</h3>
+            <div class="lookup-detail">
+              <span><strong>RFC:</strong> ${escapeHtml(client.rfc)}</span>
+              <span><strong>Telefono:</strong> ${escapeHtml(client.phone)}</span>
+              <span><strong>Correo:</strong> ${escapeHtml(client.email || '-')}</span>
+              <span><strong>Estado:</strong> ${escapeHtml(client.status)}</span>
+            </div>
+          </div>
+          <div>
+            <div class="lookup-detail">
+              <span><strong>Productos que compro:</strong></span>
+              <div class="product-tags">${productTags(client.products, client.productQuantities)}</div>
+              <span><strong>Total por compra:</strong> ${formatMoney(getProductsTotal(client.products, client.productQuantities))}</span>
+              <span><strong>Detalle:</strong> ${escapeHtml(client.purchaseDetail || 'Sin detalle especifico')}</span>
+              <span><strong>Historial:</strong> ${escapeHtml(client.history || 'Sin historial registrado')}</span>
+            </div>
+            <div class="row-actions" style="margin-top: 12px;">
+              <button class="btn-edit" type="button" data-lookup-action="edit" data-id="${client.id}">Editar cliente</button>
+              <button class="btn-secondary" type="button" data-lookup-action="see-purchases">Ver compras</button>
+            </div>
+          </div>
+        </div>
+      `;
+    }
+
+    function renderPreloadedSummary() {
+      const productSummary = productCatalog.map((product) => {
+        return `<span class="product-tag">${escapeHtml(product.name)} - ${formatMoney(product.price)}</span>`;
+      }).join('');
+
+      lookupResult.classList.add('show');
+      lookupResult.innerHTML = `
+        <div class="lookup-card">
+          <div>
+            <h3>Sistema precargado</h3>
+            <div class="lookup-detail">
+              <span><strong>${clients.length}</strong> clientes cargados en Hervago con cantidades e historial.</span>
+              <span>Busca un cliente por nombre, RFC, telefono o producto para ver que compro.</span>
+              <span>Si no existe, el sistema te permite agregarlo desde el formulario.</span>
+            </div>
+          </div>
+          <div>
+            <div class="lookup-detail">
+              <span><strong>Productos precargados:</strong></span>
+              <div class="product-tags">${productSummary}</div>
+            </div>
+          </div>
+        </div>
+      `;
+    }
+
+    function renderClientOptions() {
+      const options = clients.map((client) => {
+        return `<option value="${client.id}">${escapeHtml(client.name)} - ${escapeHtml(client.rfc)}</option>`;
+      }).join('');
+      saleClient.innerHTML = options;
+      cashClient.innerHTML = options;
+    }
+
+    function saleProductTags(sale) {
+      return sale.products.map((product) => {
+        const subtotal = product.price * product.quantity;
+        return `<span class="product-tag">${escapeHtml(product.name)} x${product.quantity} - ${formatMoney(subtotal)}</span>`;
+      }).join('');
+    }
+
+    function getClientName(clientId) {
+      const client = clients.find((currentClient) => currentClient.id === clientId);
+      return client ? client.name : 'Cliente eliminado';
+    }
+
+    function getSalesByDate(date) {
+      return sales.filter((sale) => sale.date === date);
+    }
+
+    function summarizeSales(date) {
+      const daySales = getSalesByDate(date);
+      const clientIds = new Set(daySales.map((sale) => sale.clientId));
+      const total = daySales.reduce((sum, sale) => sum + getSaleTotal(sale), 0);
+      return {
+        date,
+        salesCount: daySales.length,
+        clientCount: clientIds.size,
+        total
+      };
+    }
+
+    function renderSalesModule() {
+      renderClientOptions();
+      if (!saleDate.value) saleDate.value = getTodayDate();
+      if (!cashDate.value) cashDate.value = getTodayDate();
+
+      const todaySummary = summarizeSales(getTodayDate());
+      todaySalesTotal.textContent = formatMoney(todaySummary.total);
+      todayClientCount.textContent = todaySummary.clientCount;
+      cutCount.textContent = dailyCuts.length;
+      cutStatus.textContent = 'Corte diario programado a las 11:00 PM';
+
+      salesHistoryBody.innerHTML = sales
+        .slice()
+        .sort((a, b) => b.date.localeCompare(a.date))
+        .map((sale) => {
+          return `
+            <tr>
+              <td data-label="Fecha">${escapeHtml(sale.date)}</td>
+              <td data-label="Cliente">${escapeHtml(getClientName(sale.clientId))}</td>
+              <td data-label="Vendedor">${escapeHtml(getSellerName(sale.sellerCode))}</td>
+              <td data-label="Productos"><div class="product-tags">${saleProductTags(sale)}</div></td>
+              <td data-label="Total"><strong>${formatMoney(getSaleTotal(sale))}</strong></td>
+              <td data-label="Nota">${escapeHtml(sale.note || '-')}</td>
+            </tr>
+          `;
+        }).join('');
+
+      dailyCutsBody.innerHTML = dailyCuts
+        .slice()
+        .sort((a, b) => b.date.localeCompare(a.date))
+        .map((cut) => {
+          return `
+            <tr>
+              <td data-label="Fecha de corte">${escapeHtml(cut.date)}</td>
+              <td data-label="Ventas">${cut.salesCount}</td>
+              <td data-label="Clientes">${cut.clientCount}</td>
+              <td data-label="Total vendido"><strong>${formatMoney(cut.total)}</strong></td>
+              <td data-label="Guardado">${escapeHtml(cut.savedAt)}</td>
+            </tr>
+          `;
+        }).join('');
+    }
+
+    function getCashSaleProductsFromForm() {
+      return productCatalog
+        .map((product) => {
+          const input = cashForm.querySelector(`input[name="cash-${CSS.escape(product.name)}"]`);
+          const quantity = Math.max(0, Number(input?.value || 0));
+          return { name: product.name, quantity, price: product.price };
+        })
+        .filter((product) => product.quantity > 0);
+    }
+
+    function renderSellerKpis() {
+      const weeklySales = sales.filter((sale) => sale.sellerCode && saleIsInCurrentWeek(sale));
+      const { start, end } = getWeekRange();
+      sellerKpiStatus.textContent = `Semana ${start.toISOString().slice(0, 10)} al ${end.toISOString().slice(0, 10)}`;
+
+      sellerKpiBody.innerHTML = sellerCatalog.map((seller) => {
+        const sellerSales = weeklySales.filter((sale) => sale.sellerCode === seller.code);
+        const total = sellerSales.reduce((sum, sale) => sum + getSaleTotal(sale), 0);
+        const productTotals = {};
+
+        sellerSales.forEach((sale) => {
+          sale.products.forEach((product) => {
+            productTotals[product.name] = (productTotals[product.name] || 0) + product.quantity;
+          });
+        });
+
+        const productsText = Object.entries(productTotals).length
+          ? Object.entries(productTotals).map(([name, quantity]) => `<span class="product-tag">${escapeHtml(name)} x${quantity}</span>`).join('')
+          : '<span class="small-text">Sin ventas esta semana</span>';
+
+        return `
+          <tr>
+            <td data-label="Vendedor">${escapeHtml(seller.name)}</td>
+            <td data-label="Codigo">${escapeHtml(seller.code)}</td>
+            <td data-label="Ventas semana">${sellerSales.length}</td>
+            <td data-label="Total vendido"><strong>${formatMoney(total)}</strong></td>
+            <td data-label="Productos"><div class="product-tags">${productsText}</div></td>
+          </tr>
+        `;
+      }).join('');
+    }
+
+    function getAvailableYears() {
+      const years = new Set();
+      sales.forEach((sale) => years.add(sale.date.slice(0, 4)));
+      dailyCuts.forEach((cut) => years.add(cut.date.slice(0, 4)));
+      years.add(getTodayDate().slice(0, 4));
+      return Array.from(years).sort((a, b) => b.localeCompare(a));
+    }
+
+    function renderYearOptions() {
+      const selectedYear = yearFilter.value || getTodayDate().slice(0, 4);
+      yearFilter.innerHTML = getAvailableYears().map((year) => {
+        return `<option value="${year}">${year}</option>`;
+      }).join('');
+      yearFilter.value = getAvailableYears().includes(selectedYear) ? selectedYear : getAvailableYears()[0];
+    }
+
+    function saleMatchesDateFilter(sale, year, exactDate) {
+      if (exactDate) return sale.date === exactDate;
+      return sale.date.startsWith(year);
+    }
+
+    function cutMatchesDateFilter(cut, year, exactDate) {
+      if (exactDate) return cut.date === exactDate;
+      return cut.date.startsWith(year);
+    }
+
+    function renderDateSearch() {
+      renderYearOptions();
+      const year = yearFilter.value;
+      const exactDate = exactDateFilter.value;
+      const filteredSales = sales.filter((sale) => saleMatchesDateFilter(sale, year, exactDate));
+      const filteredCuts = dailyCuts.filter((cut) => cutMatchesDateFilter(cut, year, exactDate));
+      const total = filteredSales.reduce((sum, sale) => sum + getSaleTotal(sale), 0);
+
+      filteredSalesCount.textContent = filteredSales.length;
+      filteredSalesTotal.textContent = formatMoney(total);
+      filteredCutsCount.textContent = filteredCuts.length;
+      dateSearchStatus.textContent = exactDate
+        ? `Resultados de la fecha ${exactDate}.`
+        : `Resultados del año ${year}.`;
+
+      filteredSalesBody.innerHTML = filteredSales
+        .slice()
+        .sort((a, b) => b.date.localeCompare(a.date))
+        .map((sale) => {
+          return `
+            <tr>
+              <td data-label="Fecha">${escapeHtml(sale.date)}</td>
+              <td data-label="Cliente">${escapeHtml(getClientName(sale.clientId))}</td>
+              <td data-label="Vendedor">${escapeHtml(getSellerName(sale.sellerCode))}</td>
+              <td data-label="Productos"><div class="product-tags">${saleProductTags(sale)}</div></td>
+              <td data-label="Total"><strong>${formatMoney(getSaleTotal(sale))}</strong></td>
+              <td data-label="Nota">${escapeHtml(sale.note || '-')}</td>
+            </tr>
+          `;
+        }).join('');
+
+      filteredCutsBody.innerHTML = filteredCuts
+        .slice()
+        .sort((a, b) => b.date.localeCompare(a.date))
+        .map((cut) => {
+          return `
+            <tr>
+              <td data-label="Fecha de corte">${escapeHtml(cut.date)}</td>
+              <td data-label="Ventas">${cut.salesCount}</td>
+              <td data-label="Clientes">${cut.clientCount}</td>
+              <td data-label="Total vendido"><strong>${formatMoney(cut.total)}</strong></td>
+              <td data-label="Guardado">${escapeHtml(cut.savedAt)}</td>
+            </tr>
+          `;
+        }).join('');
+
+      if (!filteredSales.length) {
+        filteredSalesBody.innerHTML = '<tr><td data-label="Resultado" colspan="6">No hay ventas registradas para esta busqueda.</td></tr>';
+      }
+
+      if (!filteredCuts.length) {
+        filteredCutsBody.innerHTML = '<tr><td data-label="Resultado" colspan="5">No hay cortes guardados para esta busqueda.</td></tr>';
+      }
+    }
+
+    function getSaleProductsFromForm() {
+      return productCatalog
+        .map((product) => {
+          const input = saleForm.querySelector(`input[name="sale-${CSS.escape(product.name)}"]`);
+          const quantity = Math.max(0, Number(input?.value || 0));
+          return { name: product.name, quantity, price: product.price };
+        })
+        .filter((product) => product.quantity > 0);
+    }
+
+    function appendClientSaleHistory(sale) {
+      const client = clients.find((currentClient) => currentClient.id === sale.clientId);
+      if (!client) return;
+
+      const productsText = sale.products.map((product) => `${product.quantity} ${product.name}`).join(', ');
+      const line = `${sale.date}: Venta registrada: ${productsText}. Total ${formatMoney(getSaleTotal(sale))}.`;
+      client.history = client.history ? `${client.history}\n${line}` : line;
+      saveClients();
+    }
+
+    function generateDailyCut(date = getTodayDate(), showMessage = true) {
+      const summary = summarizeSales(date);
+      const existingIndex = dailyCuts.findIndex((cut) => cut.date === date);
+      const cut = {
+        id: `cut-${date}`,
+        date,
+        salesCount: summary.salesCount,
+        clientCount: summary.clientCount,
+        total: summary.total,
+        savedAt: getNowText()
+      };
+
+      if (existingIndex >= 0) {
+        dailyCuts[existingIndex] = cut;
+      } else {
+        dailyCuts.unshift(cut);
+      }
+
+      saveDailyCuts();
+      renderSalesModule();
+      renderDateSearch();
+      if (showMessage) {
+        cutStatus.textContent = `Corte de ${date} guardado correctamente.`;
+      }
+    }
+
+    function csvValue(value) {
+      return `"${String(value).replaceAll('"', '""')}"`;
+    }
+
+    function downloadDailyClosing(date = getTodayDate()) {
+      const daySales = getSalesByDate(date);
+      const rows = [
+        ['Fecha', 'Cliente', 'Vendedor', 'Codigo vendedor', 'Producto', 'Cantidad', 'Precio unitario', 'Subtotal', 'Nota']
+      ];
+
+      daySales.forEach((sale) => {
+        sale.products.forEach((product) => {
+          rows.push([
+            sale.date,
+            getClientName(sale.clientId),
+            getSellerName(sale.sellerCode),
+            sale.sellerCode || '',
+            product.name,
+            product.quantity,
+            product.price,
+            product.price * product.quantity,
+            sale.note || ''
+          ]);
+        });
+      });
+
+      const csv = rows.map((row) => row.map(csvValue).join(',')).join('\n');
+      const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `cierre-hervago-${date}.csv`;
+      link.click();
+      URL.revokeObjectURL(url);
+    }
+
+    function checkDailyCutSchedule() {
+      const now = new Date();
+      if (now.getHours() >= 23) {
+        const today = getTodayDate();
+        const alreadySaved = dailyCuts.some((cut) => cut.date === today);
+        if (!alreadySaved) generateDailyCut(today, false);
+      }
+    }
+
+    function searchClientWindow() {
+      const searchValue = clientLookupInput.value.trim();
+      const searchTerm = normalizeText(searchValue);
+
+      if (!searchTerm) {
+        lookupResult.classList.add('show');
+        lookupResult.innerHTML = '<div class="small-text">Escribe un nombre, RFC, telefono o producto para buscar al cliente.</div>';
+        clientLookupInput.focus();
+        return;
+      }
+
+      const foundClient = clients.find((client) => clientMatchesSearch(client, searchTerm));
+      renderLookupResult(foundClient, searchValue);
+    }
+
+    function renderClients() {
+      const searchTerm = normalizeText(searchInput.value);
+      const filteredClients = clients.filter((client) => clientMatchesSearch(client, searchTerm));
+
+      counter.textContent = `${clients.length} ${clients.length === 1 ? 'cliente registrado' : 'clientes registrados'}`;
+      tableBody.innerHTML = '';
+      purchaseTableBody.innerHTML = '';
+
+      filteredClients.forEach((client) => {
+        const row = document.createElement('tr');
+        row.innerHTML = `
+          <td data-label="Cliente">
+            <div class="client-name">${escapeHtml(client.name)}</div>
+            <div class="small-text">${escapeHtml(client.address || 'Sin direccion')}</div>
+          </td>
+          <td data-label="RFC">${escapeHtml(client.rfc)}</td>
+          <td data-label="Estado">${statusBadge(client.status)}</td>
+          <td data-label="Telefono">${escapeHtml(client.phone)}</td>
+          <td data-label="Correo">${escapeHtml(client.email || '-')}</td>
+          <td data-label="Productos"><div class="product-tags">${productTags(client.products, client.productQuantities)}</div></td>
+          <td data-label="Acciones">
+            <div class="row-actions">
+              <button class="btn-edit" type="button" data-action="edit" data-id="${client.id}">Editar</button>
+              <button class="btn-danger" type="button" data-action="delete" data-id="${client.id}">Eliminar</button>
+            </div>
+          </td>
+        `;
+        tableBody.appendChild(row);
+
+        const purchaseRow = document.createElement('tr');
+        purchaseRow.innerHTML = `
+          <td data-label="Cliente">
+            <div class="client-name">${escapeHtml(client.name)}</div>
+            <div class="small-text">RFC: ${escapeHtml(client.rfc)}</div>
+          </td>
+          <td data-label="Producto"><div class="product-tags">${productTags(client.products, client.productQuantities)}</div></td>
+          <td data-label="Total"><strong>${formatMoney(getProductsTotal(client.products, client.productQuantities))}</strong></td>
+          <td data-label="Detalle">${escapeHtml(client.purchaseDetail || 'Sin detalle especifico')}</td>
+          <td data-label="Historial">${escapeHtml(client.history || 'Sin historial registrado')}</td>
+          <td data-label="Estado">${statusBadge(client.status)}</td>
+        `;
+        purchaseTableBody.appendChild(purchaseRow);
+      });
+
+      const hasRows = filteredClients.length > 0;
+      tableWrap.style.display = hasRows ? 'block' : 'none';
+      emptyState.style.display = hasRows ? 'none' : 'block';
+      emptyState.textContent = clients.length === 0 ? 'Aun no hay clientes registrados.' : 'No se encontraron clientes con esa busqueda.';
+    }
+
+    function getSelectedProducts() {
+      return Array.from(form.querySelectorAll('input[name="products"]:checked')).map((input) => input.value);
+    }
+
+    function getSelectedProductQuantities(products) {
+      return products.reduce((quantities, productName) => {
+        const input = form.querySelector(`input[name="quantity-${CSS.escape(productName)}"]`);
+        quantities[productName] = Math.max(1, Number(input?.value || 1));
+        return quantities;
+      }, {});
+    }
+
+    function setSelectedProducts(products) {
+      form.querySelectorAll('input[name="products"]').forEach((input) => {
+        input.checked = products.includes(input.value);
+      });
+    }
+
+    function setProductQuantities(productQuantities) {
+      productCatalog.forEach((product) => {
+        const input = form.querySelector(`input[name="quantity-${CSS.escape(product.name)}"]`);
+        if (input) input.value = productQuantities[product.name] || 1;
+      });
+    }
+
+    function resetFormMode() {
+      form.reset();
+      document.getElementById('editingId').value = '';
+      formTitle.textContent = 'Agregar cliente';
+      saveButton.textContent = 'Guardar cliente';
+      cancelEditButton.style.display = 'none';
+    }
+
+    function fillFormForEdit(client) {
+      document.getElementById('editingId').value = client.id;
+      document.getElementById('clientName').value = client.name;
+      document.getElementById('clientRfc').value = client.rfc;
+      document.getElementById('clientStatus').value = client.status;
+      document.getElementById('clientPhone').value = client.phone;
+      document.getElementById('clientEmail').value = client.email;
+      document.getElementById('clientAddress').value = client.address;
+      document.getElementById('purchaseDetail').value = client.purchaseDetail;
+      document.getElementById('clientHistory').value = client.history || '';
+      document.getElementById('clientNotes').value = client.notes;
+      setSelectedProducts(client.products);
+      setProductQuantities(client.productQuantities || {});
+      formTitle.textContent = 'Editar cliente';
+      saveButton.textContent = 'Actualizar cliente';
+      cancelEditButton.style.display = 'inline-block';
+      document.getElementById('clientName').focus();
+    }
+
+    function buildClientFromForm(id) {
+      const formData = new FormData(form);
+      return {
+        id: id || crypto.randomUUID(),
+        name: formData.get('name').trim(),
+        rfc: formData.get('rfc').trim().toUpperCase(),
+        status: formData.get('status'),
+        phone: formData.get('phone').trim(),
+        email: formData.get('email').trim(),
+        address: formData.get('address').trim(),
+        products: getSelectedProducts(),
+        productQuantities: getSelectedProductQuantities(getSelectedProducts()),
+        purchaseDetail: formData.get('purchaseDetail').trim(),
+        history: formData.get('history').trim(),
+        notes: formData.get('notes').trim()
+      };
+    }
+
+    form.addEventListener('submit', (event) => {
+      event.preventDefault();
+      const editingId = document.getElementById('editingId').value;
+      const client = buildClientFromForm(editingId);
+
+      if (editingId) {
+        clients = clients.map((currentClient) => currentClient.id === editingId ? client : currentClient);
+      } else {
+        clients.unshift(client);
+      }
+
+      saveClients();
+      resetFormMode();
+    renderClients();
+    renderSalesModule();
+    renderSellerKpis();
+    renderDateSearch();
+    });
+
+    tableBody.addEventListener('click', (event) => {
+      const button = event.target.closest('button[data-id]');
+      if (!button) return;
+
+      const clientId = button.dataset.id;
+      const action = button.dataset.action;
+
+      if (action === 'edit') {
+        const client = clients.find((currentClient) => currentClient.id === clientId);
+        if (client) fillFormForEdit(client);
+        return;
+      }
+
+      clients = clients.filter((client) => client.id !== clientId);
+      saveClients();
+      resetFormMode();
+    renderClients();
+    renderSalesModule();
+    renderSellerKpis();
+    renderDateSearch();
+    });
+
+    document.querySelectorAll('.tab-button').forEach((button) => {
+      button.addEventListener('click', () => switchTab(button.dataset.tab));
+    });
+
+    lookupResult.addEventListener('click', (event) => {
+      const button = event.target.closest('button[data-lookup-action]');
+      if (!button) return;
+
+      const action = button.dataset.lookupAction;
+
+      if (action === 'add') {
+        focusAddClient(clientLookupInput.value.trim());
+      }
+
+      if (action === 'clear') {
+        clientLookupInput.value = '';
+        lookupResult.classList.remove('show');
+        lookupResult.innerHTML = '';
+        clientLookupInput.focus();
+      }
+
+      if (action === 'edit') {
+        const client = clients.find((currentClient) => currentClient.id === button.dataset.id);
+        if (client) {
+          fillFormForEdit(client);
+          form.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+      }
+
+      if (action === 'see-purchases') {
+        switchTab('purchasesTab');
+        document.getElementById('purchasesTab').scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+    });
+
+    cancelEditButton.addEventListener('click', resetFormMode);
+    searchInput.addEventListener('input', renderClients);
+    clientLookupButton.addEventListener('click', searchClientWindow);
+    clientLookupInput.addEventListener('keydown', (event) => {
+      if (event.key === 'Enter') {
+        event.preventDefault();
+        searchClientWindow();
+      }
+    });
+    saleForm.addEventListener('submit', (event) => {
+      event.preventDefault();
+      const products = getSaleProductsFromForm();
+      if (!products.length) {
+        cutStatus.textContent = 'Agrega al menos un producto para registrar la venta.';
+        return;
+      }
+
+      const formData = new FormData(saleForm);
+      const sale = {
+        id: crypto.randomUUID(),
+        date: formData.get('date'),
+        clientId: formData.get('clientId'),
+        products,
+        sellerCode: 'ADMIN',
+        note: formData.get('note').trim()
+      };
+
+      sales.unshift(sale);
+      saveSales();
+      appendClientSaleHistory(sale);
+      saleForm.reset();
+      saleDate.value = getTodayDate();
+      renderSaleProductOptions();
+      renderClients();
+      renderSalesModule();
+      renderSellerKpis();
+      renderDateSearch();
+      cutStatus.textContent = 'Venta registrada y agregada al historial del cliente.';
+    });
+    cashForm.addEventListener('submit', (event) => {
+      event.preventDefault();
+      const seller = getSellerByCode(cashSellerCode.value);
+      const products = getCashSaleProductsFromForm();
+
+      if (!seller) {
+        cashStatus.textContent = 'Codigo invalido. Usa SUS-101, MOI-202 o TOM-303.';
+        cashSellerCode.focus();
+        return;
+      }
+
+      if (!products.length) {
+        cashStatus.textContent = 'Agrega al menos un producto para registrar la venta.';
+        return;
+      }
+
+      const formData = new FormData(cashForm);
+      const sale = {
+        id: crypto.randomUUID(),
+        date: formData.get('date'),
+        clientId: formData.get('clientId'),
+        products,
+        sellerCode: seller.code,
+        note: formData.get('note').trim()
+      };
+
+      sales.unshift(sale);
+      saveSales();
+      appendClientSaleHistory(sale);
+      cashForm.reset();
+      cashDate.value = getTodayDate();
+      renderCashProductOptions();
+      renderClients();
+      renderSalesModule();
+      renderSellerKpis();
+      renderDateSearch();
+      cashStatus.textContent = `Venta registrada por ${seller.name}.`;
+    });
+    generateCutButton.addEventListener('click', () => generateDailyCut(getTodayDate(), true));
+    downloadCutButton.addEventListener('click', () => {
+      generateDailyCut(getTodayDate(), false);
+      downloadDailyClosing(getTodayDate());
+      cutStatus.textContent = 'Cierre descargado y corte guardado.';
+    });
+    applyDateFilterButton.addEventListener('click', renderDateSearch);
+    clearDateFilterButton.addEventListener('click', () => {
+      exactDateFilter.value = '';
+      yearFilter.value = getTodayDate().slice(0, 4);
+      renderDateSearch();
+    });
+    yearFilter.addEventListener('change', renderDateSearch);
+    exactDateFilter.addEventListener('change', renderDateSearch);
+
+    listForm.addEventListener('submit', (event) => {
+      event.preventDefault();
+      const name = listName.value.trim();
+      const itemText = firstListItem.value.trim();
+      if (!name) return;
+
+      savedListsData.unshift({
+        id: crypto.randomUUID(),
+        name,
+        items: itemText ? [{ id: crypto.randomUUID(), text: itemText }] : [],
+        createdAt: new Date().toISOString()
+      });
+      saveLists();
+      listForm.reset();
+      renderLists();
+      showListMessage('Listado guardado correctamente.');
+    });
+
+    savedLists.addEventListener('click', (event) => {
+      const control = event.target.closest('[data-list-action]');
+      if (!control) return;
+
+      const listId = control.dataset.listId;
+      const action = control.dataset.listAction;
+      const list = savedListsData.find((currentList) => currentList.id === listId);
+      if (!list) return;
+
+      if (action === 'complete-item') {
+        list.items = list.items.filter((item) => item.id !== control.dataset.itemId);
+        saveLists();
+        renderLists();
+        showListMessage('Elemento completado y eliminado del listado.');
+      }
+
+      if (action === 'delete-list') {
+        savedListsData = savedListsData.filter((currentList) => currentList.id !== listId);
+        saveLists();
+        renderLists();
+        showListMessage('Listado eliminado.');
+      }
+    });
+
+    savedLists.addEventListener('submit', (event) => {
+      const addForm = event.target.closest('form[data-list-form="add-item"]');
+      if (!addForm) return;
+      event.preventDefault();
+
+      const list = savedListsData.find((currentList) => currentList.id === addForm.dataset.listId);
+      const input = addForm.querySelector('input[name="itemText"]');
+      const text = input.value.trim();
+      if (!list || !text) return;
+
+      list.items.push({ id: crypto.randomUUID(), text });
+      saveLists();
+      renderLists();
+      showListMessage('Elemento agregado al listado.');
+    });
+
+    renderClients();
+    renderSalesModule();
+    renderSellerKpis();
+    renderDateSearch();
+    renderLists();
+    renderPreloadedSummary();
+    checkDailyCutSchedule();
+    setInterval(checkDailyCutSchedule, 60000);
+  </script>
+</body>
+</html>
