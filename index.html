@@ -776,7 +776,7 @@
     .install-float p, .notification-toast p { margin:0 0 14px; color:var(--muted); font-size:14px; line-height:1.45; }
     .install-float .close-float { position:absolute; right:10px; top:8px; background:transparent; color:var(--muted); font-size:20px; padding:4px 8px; }
     .notification-toast { bottom:22px; border-left:5px solid var(--primary); }
-    .settings-grid { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:12px; padding:18px; }
+    .settings-grid { display:grid; grid-template-columns:repeat(auto-fit, minmax(210px, 1fr)); gap:12px; padding:18px; }
     .setting-card { border:1px solid var(--line); border-radius:10px; padding:16px; background:#fbfdf9; }
     .setting-card h3 { margin:0 0 8px; font-size:16px; }
     .setting-card p { color:var(--muted); font-size:13px; min-height:38px; }
@@ -1219,13 +1219,39 @@
       </section>
 
       <section class="tab-panel" id="settingsTab">
-        <div class="list-toolbar"><div><h2>Configuración</h2><div class="counter" id="notificationStatus">Notificaciones sin configurar</div></div><button class="btn-primary" id="enableNotificationsButton" type="button">Activar notificaciones</button></div>
-        <div class="settings-grid">
-          <button class="setting-card" type="button" data-notification-mode="all"><h3>🔔 Todo encendido</h3><p>Recibe las alertas del sistema y el resumen diario cuando corresponda.</p></button>
-          <button class="setting-card" type="button" data-notification-mode="daily"><h3>🕘 Solo una al día</h3><p>Limita los avisos a un resumen diario. Se muestra como notificación/ventana.</p></button>
-          <button class="setting-card" type="button" data-notification-mode="off"><h3>🔕 Apagadas</h3><p>Suspende las notificaciones de este dispositivo.</p></button>
+        <div class="list-toolbar">
+          <div>
+            <h2>Configuración y Alertas</h2>
+            <div class="counter" id="notificationStatus">Notificaciones sin configurar</div>
+          </div>
+          <div class="row-actions">
+            <button class="btn-primary" id="enableNotificationsButton" type="button">Activar notificaciones</button>
+            <button class="btn-secondary" id="testNotificationButton" type="button">🔔 Probar alerta</button>
+          </div>
         </div>
-        <div class="sales-box"><h3>Resumen de registros — 9:00 PM</h3><p class="small-text">Si hoy se registraron personas, el sistema enviará la cantidad. Si el total es 0, no enviará nada.</p><div class="small-text" id="dailyAlertStatus">Programación: 21:00, zona America/Mexico_City.</div></div>
+        <div class="settings-grid">
+          <button class="setting-card" type="button" data-notification-mode="all">
+            <h3>🔔 Todo encendido</h3>
+            <p>Recibe todas las alertas del sistema (push en dispositivo, ventana y resumen diario).</p>
+          </button>
+          <button class="setting-card" type="button" data-notification-mode="daily">
+            <h3>🕘 Solo una al día</h3>
+            <p>Suspende alertas continuas y recibe únicamente el resumen de las 8:30 PM.</p>
+          </button>
+          <button class="setting-card" type="button" data-notification-mode="window">
+            <h3>🪟 Solo ventana</h3>
+            <p>Muestra avisos únicamente en formato de ventana flotante dentro de la app.</p>
+          </button>
+          <button class="setting-card" type="button" data-notification-mode="off">
+            <h3>🔕 Apagadas</h3>
+            <p>Desactiva completamente las notificaciones en este dispositivo.</p>
+          </button>
+        </div>
+        <div class="sales-box">
+          <h3>Resumen de registros — 8:30 PM</h3>
+          <p class="small-text">Al finalizar el día (8:30 PM / 20:30 hrs), el sistema verifica los clientes registrados hoy. Si hubo registros nuevos, envía la alerta con la cantidad. Si no hubo registros, no envía nada.</p>
+          <div class="small-text" id="dailyAlertStatus">Programación: 20:30 hrs, zona horaria America/Mexico_City.</div>
+        </div>
       </section>
     </section>
   </main>
@@ -1322,6 +1348,7 @@
     const installHelp = document.getElementById('installHelp');
     const notificationStatus = document.getElementById('notificationStatus');
     const enableNotificationsButton = document.getElementById('enableNotificationsButton');
+    const testNotificationButton = document.getElementById('testNotificationButton');
     const notificationToast = document.getElementById('notificationToast');
     const toastTitle = document.getElementById('toastTitle');
     const toastBody = document.getElementById('toastBody');
@@ -2681,7 +2708,15 @@
     function renderNotificationSettings() {
       const mode = getNotificationMode();
       document.querySelectorAll('[data-notification-mode]').forEach((b) => b.classList.toggle('active', b.dataset.notificationMode === mode));
-      notificationStatus.textContent = mode === 'off' ? 'Notificaciones apagadas' : mode === 'daily' ? 'Solo una notificación al día' : 'Todas las notificaciones activas';
+      if (mode === 'off') {
+        notificationStatus.textContent = 'Notificaciones apagadas';
+      } else if (mode === 'daily') {
+        notificationStatus.textContent = 'Solo una al día (Resumen 8:30 PM)';
+      } else if (mode === 'window') {
+        notificationStatus.textContent = 'Modo ventana flotante (sin push al dispositivo)';
+      } else {
+        notificationStatus.textContent = 'Todas las notificaciones activas';
+      }
     }
     async function persistDevicePreference(token = null) {
       if (!firebaseUser) return;
@@ -2710,10 +2745,70 @@
       const mode=getNotificationMode(); if(mode==='off') return;
       showInAppNotification(payload.notification?.title || 'Hervago', payload.notification?.body || payload.data?.body || 'Nueva alerta');
     });
+    function testCurrentNotification() {
+      const mode = getNotificationMode();
+      if (mode === 'off') {
+        alert('Las notificaciones están apagadas. Selecciona "Todo encendido", "Solo una al día" o "Solo ventana" para probar.');
+        return;
+      }
+      showInAppNotification('Prueba de alerta Hervago', 'Modo actual: ' + mode + '. ¡Notificación validada exitosamente!');
+      if ((mode === 'all' || mode === 'daily') && 'Notification' in window && Notification.permission === 'granted') {
+        try {
+          new Notification('Hervago - Alerta de prueba', {
+            body: 'Las notificaciones del sistema están funcionando correctamente.',
+            icon: './icons/icon-192.png'
+          });
+        } catch (e) {
+          console.log('Push local emitido via service worker si aplica');
+        }
+      }
+    }
+
+    const DAILY_ALERT_LOG_KEY = 'hervago-daily-alert-sent';
+    function checkDaily830Alert() {
+      const mode = getNotificationMode();
+      if (mode === 'off') return;
+
+      const now = new Date();
+      // 8:30 PM = 20 horas, 30 minutos
+      const isPast830 = (now.getHours() > 20) || (now.getHours() === 20 && now.getMinutes() >= 30);
+      if (!isPast830) return;
+
+      const todayStr = getTodayDate();
+      const lastSent = localStorage.getItem(DAILY_ALERT_LOG_KEY);
+      if (lastSent === todayStr) return; // Ya se envió hoy
+
+      // Contar clientes registrados hoy
+      const todayRegistrations = clients.filter(function(c) {
+        if (!c.createdAt) return false;
+        return c.createdAt.slice(0, 10) === todayStr;
+      });
+      const count = todayRegistrations.length;
+
+      // Si en ese día no hay registros, no enviar nada
+      if (count === 0) return;
+
+      localStorage.setItem(DAILY_ALERT_LOG_KEY, todayStr);
+      var msg = 'Hoy se registraron ' + count + ' cliente(s) nuevo(s) en Hervago.';
+      showInAppNotification('Resumen de registros del día (8:30 PM)', msg);
+
+      if ((mode === 'all' || mode === 'daily') && 'Notification' in window && Notification.permission === 'granted') {
+        try {
+          new Notification('Hervago · Resumen 8:30 PM', {
+            body: msg,
+            icon: './icons/icon-192.png'
+          });
+        } catch (e) {}
+      }
+    }
+
     enableNotificationsButton.addEventListener('click', activateNotifications);
+    if (testNotificationButton) testNotificationButton.addEventListener('click', testCurrentNotification);
     document.querySelectorAll('[data-notification-mode]').forEach((b) => b.addEventListener('click', () => setNotificationMode(b.dataset.notificationMode)));
     closeToast.addEventListener('click', () => notificationToast.classList.remove('show'));
     renderNotificationSettings();
+    checkDaily830Alert();
+    setInterval(checkDaily830Alert, 30000);
 
     function isIos() { return /iphone|ipad|ipod/i.test(navigator.userAgent); }
     function isStandalone() { return window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true; }
