@@ -2810,22 +2810,55 @@
     checkDaily830Alert();
     setInterval(checkDaily830Alert, 30000);
 
-    function isIos() { return /iphone|ipad|ipod/i.test(navigator.userAgent); }
+    function isIos() {
+      const ua = navigator.userAgent || '';
+      return /iphone|ipad|ipod/i.test(ua) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+    }
     function isStandalone() { return window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true; }
     function mayShowInstall() { return !isStandalone() && Number(localStorage.getItem(INSTALL_IMPRESSIONS_KEY) || 0) < 3; }
-    function showInstallFloat() {
-      if (!mayShowInstall()) return;
-      localStorage.setItem(INSTALL_IMPRESSIONS_KEY, String(Number(localStorage.getItem(INSTALL_IMPRESSIONS_KEY) || 0) + 1));
-      if (isIos()) { installHelp.textContent='En iPhone/iPad: toca Compartir y luego “Agregar a pantalla de inicio”.'; installPwaButton.textContent='Entendido'; }
+    function showInstallFloat(force = false) {
+      if (!force && !mayShowInstall()) return;
+      if (!force) {
+        localStorage.setItem(INSTALL_IMPRESSIONS_KEY, String(Number(localStorage.getItem(INSTALL_IMPRESSIONS_KEY) || 0) + 1));
+      }
+      if (isIos()) {
+        installHelp.innerHTML = 'En tu <strong>iPad / iPhone</strong>: toca el botón <strong>Compartir</strong> (ícono <span style="font-size:16px;">⎋</span> arriba a la derecha en Safari) y luego selecciona <strong>“Agregar a pantalla de inicio”</strong> 📲.';
+        installPwaButton.textContent = 'Entendido';
+      } else if (!deferredInstallPrompt) {
+        installHelp.innerHTML = 'Para instalar en este navegador, abre el menú del navegador y selecciona <strong>“Instalar aplicación”</strong> o <strong>“Agregar a pantalla principal”</strong>.';
+        installPwaButton.textContent = 'Cerrar';
+      } else {
+        installHelp.textContent = 'Agrega el sistema a este dispositivo para abrirlo a pantalla completa como una aplicación.';
+        installPwaButton.textContent = 'Instalar aplicación';
+      }
       installFloat.classList.add('show');
     }
-    window.addEventListener('beforeinstallprompt', (event) => { event.preventDefault(); deferredInstallPrompt=event; setTimeout(showInstallFloat,700); });
-    window.addEventListener('appinstalled', () => { installFloat.classList.remove('show'); localStorage.setItem(INSTALL_IMPRESSIONS_KEY,'3'); });
-    if (isIos() && mayShowInstall()) setTimeout(showInstallFloat,900);
+    window.addEventListener('beforeinstallprompt', (event) => {
+      event.preventDefault();
+      deferredInstallPrompt = event;
+      setTimeout(() => showInstallFloat(false), 700);
+    });
+    window.addEventListener('appinstalled', () => {
+      installFloat.classList.remove('show');
+      localStorage.setItem(INSTALL_IMPRESSIONS_KEY, '3');
+    });
+    // Si es iPad/iPhone o navegador sin evento automático, mostrar si cumple el límite de 3 impresiones
+    if (mayShowInstall()) {
+      setTimeout(() => {
+        if (!installFloat.classList.contains('show')) {
+          showInstallFloat(false);
+        }
+      }, 1200);
+    }
     dismissInstall.addEventListener('click', () => installFloat.classList.remove('show'));
     installPwaButton.addEventListener('click', async () => {
-      if (isIos() || !deferredInstallPrompt) { installFloat.classList.remove('show'); return; }
-      await deferredInstallPrompt.prompt(); deferredInstallPrompt=null; installFloat.classList.remove('show');
+      if (isIos() || !deferredInstallPrompt) {
+        installFloat.classList.remove('show');
+        return;
+      }
+      await deferredInstallPrompt.prompt();
+      deferredInstallPrompt = null;
+      installFloat.classList.remove('show');
     });
 
     renderClients();
